@@ -8,8 +8,6 @@ import SendTransaction from "../sendTransaction/SendTransaction";
 import Stack from "@mui/material/Stack";
 import Container from "@mui/material/Container";
 
-// import Content from "../content/content";
-
 function getLibrary(provider) {
   return new Web3(provider);
 }
