@@ -11,6 +11,7 @@ const SendTransaction = () => {
   const { account } = useWeb3React();
 
   const [transactions, setTransactions] = useState([]);
+  const [paymentSend, setPaymentSend] = useState(false);
 
   const toInput = useRef(null);
   const fromInput = useRef(null);
@@ -43,6 +44,7 @@ const SendTransaction = () => {
         getTransactionReceipt(hash);
       } else {
         setTransactions([...transactions, res]);
+        setPaymentSend(true);
         console.log([...transactions, res]);
       }
     });
@@ -81,6 +83,17 @@ const SendTransaction = () => {
       <Button variant="contained" sx={{ width: "350px" }} onClick={send}>
         Send
       </Button>
+      {paymentSend ? <p>Transaction sended</p> : null}
+      {paymentSend ? (
+        <p>
+          To see details
+          <a
+            href={`https://rinkeby.etherscan.io/tx/${transactions[0].transactionHash}`}
+          >
+            click
+          </a>
+        </p>
+      ) : null}
     </Box>
   );
 };
