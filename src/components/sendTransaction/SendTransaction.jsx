@@ -4,11 +4,16 @@ import { useWeb3React } from "@web3-react/core";
 import Web3 from "web3";
 
 import Box from "@mui/material/Box";
-import Input from "@mui/material/Input";
 import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
 
 const SendTransaction = () => {
-  const { account } = useWeb3React();
+  const { active, account } = useWeb3React();
 
   const [transactions, setTransactions] = useState([]);
   const [paymentSend, setPaymentSend] = useState(false);
@@ -32,7 +37,7 @@ const SendTransaction = () => {
       .on("transactionHash", (hash) => {
         web3.eth.getTransactionReceipt(hash).then((res) => {
           if (!res) {
-            getTransactionReceipt(hash); // first occurance of recursive survey for get transactions
+            getTransactionReceipt(hash);
           }
         });
       });
@@ -50,50 +55,101 @@ const SendTransaction = () => {
     });
   }
 
+  const transactionLogs = paymentSend ? (
+    <div>
+      <p>Transaction sended {String(transactions[0].status)}</p>
+      <p>
+        To see details
+        <a
+          href={`https://rinkeby.etherscan.io/tx/${transactions[0].transactionHash}`}
+        >
+          click
+        </a>
+      </p>
+    </div>
+  ) : null;
+
+  function renderTransactionLogs() {
+    const transactionLogs = transactions.map((log) => {
+      let logLink = "https://rinkeby.etherscan.io/tx/" + log.transactionHash;
+      return (
+        <>
+          <ListItem disablePadding>
+            <ListItemButton
+              sx={{ color: log.status ? "green" : "red", cursor: "auto" }}
+            >
+              <ListItemText
+                primary={
+                  log.status ? "Transaction confirmed" : "Transaction declined"
+                }
+              />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component="a" href={logLink}>
+              <ListItemText primary="To see details - click" />
+            </ListItemButton>
+          </ListItem>
+        </>
+      );
+    });
+    return <List>{transactionLogs}</List>;
+  }
+
   return (
     <Box
-      component="form"
       sx={{
         "& > :not(style)": { m: 2 },
         border: "1px solid gray",
         borderRadius: "10px",
       }}
-      noValidate
-      autoComplete="off"
     >
-      {/* <Input
-        defaultValue={account ? account : null}
-        placeholder="Enter your account"
-        ref={fromInput}
-      />
-      <Input placeholder="Enter recipient's account" ref={toInput} />
-      <Input placeholder="Enter value" ref={valueToSend} /> */}
-      <div>
-        from
-        <input defaultValue={account} ref={fromInput} />
-      </div>
-      <div>
-        to
-        <input ref={toInput} />
-      </div>
-      <div>
-        value
-        <input ref={valueToSend} />
-      </div>
-      <Button variant="contained" sx={{ width: "350px" }} onClick={send}>
-        Send
-      </Button>
-      {paymentSend ? <p>Transaction sended</p> : null}
-      {paymentSend ? (
-        <p>
-          To see details
-          <a
-            href={`https://rinkeby.etherscan.io/tx/${transactions[0].transactionHash}`}
-          >
-            click
-          </a>
-        </p>
-      ) : null}
+      <Box
+        component="form"
+        noValidate
+        autoComplete="off"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
+        }}
+      >
+        <TextField
+          id="outlined-basic"
+          label="Your account"
+          variant="outlined"
+          defaultValue={active ? account : null}
+          inputRef={fromInput}
+          disabled={!active}
+        />
+        <TextField
+          id="outlined-basic"
+          label="Recepient account"
+          variant="outlined"
+          inputRef={toInput}
+          disabled={!active}
+        />
+        <TextField
+          id="outlined-basic"
+          label="Value to send"
+          variant="outlined"
+          inputRef={valueToSend}
+          disabled={!active}
+          InputProps={{
+            endAdornment: <InputAdornment position="end">ETH</InputAdornment>,
+          }}
+        />
+
+        <Button
+          disabled={!active}
+          variant="contained"
+          sx={{ width: "350px" }}
+          onClick={send}
+        >
+          Send
+        </Button>
+      </Box>
+      {renderTransactionLogs()}
     </Box>
   );
 };

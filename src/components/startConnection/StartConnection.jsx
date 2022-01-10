@@ -7,6 +7,9 @@ import { connector } from "../../connectors/connector";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
 
 const StartConnection = () => {
   const { active, account, activate, deactivate } = useWeb3React();
@@ -21,7 +24,6 @@ const StartConnection = () => {
     } catch (ex) {
       console.log(ex);
     }
-    console.log(web3.eth.accounts);
   }
 
   async function onDisconnect() {
@@ -41,6 +43,55 @@ const StartConnection = () => {
       clearInterval(timerId);
     };
   }, []);
+
+  // function getLogs() {
+  //   // web3.eth
+  //   //   .getPastLogs({
+  //   //     fromBlock: "0x0",
+  //   //     address: "0xA155E792068a5e00b702Df7475EbbfD034f8a482",
+  //   //   })
+  //   //   .then((res) => {
+  //   //     res.forEach((rec) => {
+  //   //       console.log(rec.blockNumber, rec.transactionHash, rec.topics);
+  //   //     });
+  //   //   })
+  //   //   .catch((err) => console.log("getPastLogs failed", err));
+  //   // web3.eth
+  //   //   .getPastLogs({
+  //   //     fromBlock: 9934568,
+  //   //     toBlock: 9960871,
+  //   //     address: "0xA155E792068a5e00b702Df7475EbbfD034f8a482",
+  //   //   })
+  //   //   .then(console.log);
+  //   web3.eth
+  //     .getPastLogs({
+  //       address: "0x11f4d0A3c12e86B4b5F39B213F7E19D048276DAe",
+  //       topics: [web3.utils.sha3("adduintevent(uint256,uint256)")],
+  //     })
+  //     .then(console.log);
+  // }
+
+  // async function checkBlock() {
+  //   let block = await web3.eth.getBlock("latest");
+  //   let number = block.number;
+  //   let transactions = block.transactions;
+  //   //console.log('Search Block: ' + transactions);
+
+  //   if (block != null && block.transactions != null) {
+  //     for (let txHash of block.transactions) {
+  //       let tx = await web3.eth.getTransaction(txHash);
+
+  //       console.log(
+  //         "from: " +
+  //           tx.from.toLowerCase() +
+  //           " to: " +
+  //           tx.to.toLowerCase() +
+  //           " value: " +
+  //           tx.value
+  //       );
+  //     }
+  //   }
+  // }
 
   function getBalances() {
     if (account) {
@@ -69,14 +120,26 @@ const StartConnection = () => {
   ) : null;
 
   const accountName = active ? (
-    <span>{account}</span>
+    <ListItem disablePadding>
+      <ListItemText primary={account} />
+    </ListItem>
   ) : (
-    <span>Not connected</span>
+    <ListItem disablePadding>
+      <ListItemText primary="Not connected" />
+    </ListItem>
   );
 
-  const networkName = active ? <span>{renderSwitch()}</span> : null;
+  const networkName = active ? (
+    <ListItem disablePadding>
+      <ListItemText primary={renderSwitch()} />
+    </ListItem>
+  ) : null;
 
-  const balanceAmount = account ? <span>{balance}</span> : null;
+  const balanceAmount = account ? (
+    <ListItem disablePadding>
+      <ListItemText primary={balance + " ETH"} />
+    </ListItem>
+  ) : null;
 
   function renderSwitch() {
     switch (id) {
@@ -85,11 +148,11 @@ const StartConnection = () => {
       case 3:
         return "Test Network Ropsten";
       case 4:
-        return "Test Network Kovan";
-      case 5:
         return "Test Network Rinkeby";
-      case 42:
+      case 5:
         return "Test Network Goerli";
+      case 42:
+        return "Test Network Kovan";
       default:
         return "No netrwork";
     }
@@ -109,10 +172,12 @@ const StartConnection = () => {
       <Stack spacing={2} alignItems={"center"}>
         {connectButton}
         {disconnectButton}
+      </Stack>
+      <List>
         {accountName}
         {networkName}
         {balanceAmount}
-      </Stack>
+      </List>
     </Box>
   );
 };
